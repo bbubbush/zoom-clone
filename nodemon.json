@@ -1,0 +1,3 @@
+{
+  "exex": "babel-node src/server.js"
+}
