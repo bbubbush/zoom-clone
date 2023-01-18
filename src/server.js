@@ -15,12 +15,27 @@ app.get("/*", (req, res) => res.render("/"))
 
 const server = http.createServer(app);
 
+// Chat feature
+const connectedSockets = []
 const wss = new WebSocketServer({server});
 wss.on("connection", (socket) => {
+  socket.nickname = '익명'
+  connectedSockets.push(socket);
   console.log('Connected to Browser!')
   socket.on("close", () => console.log("Disconnected to Browser!"))
-  socket.on("message", (message) => console.log(message.toString()))
-  socket.send('Hello');
+  socket.on("message", (msg) => {
+    const message = JSON.parse(msg)
+    if (message.type == 'nickname') {
+      socket.nickname = message.payload
+      return;
+    }
+    if (message.type == 'message') {
+      connectedSockets.forEach(aSocket => {
+        aSocket.send(`${socket.nickname}:: ${message.payload}`)
+      })
+      return;
+    }
+  })
 })
 
 // Run app
