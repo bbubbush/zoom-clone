@@ -1,5 +1,6 @@
 import http from "http";
-import {WebSocketServer} from "ws";
+// import {WebSocke httpServer} from "ws";
+import { Server } from "socket.io";
 import path from "path";
 import express from "express";
 const __dirname = path.resolve();
@@ -13,30 +14,14 @@ app.use("/public", express.static(__dirname + "/src/public"))
 app.get("/", (req, res) => res.render("home"))
 app.get("/*", (req, res) => res.render("/"))
 
-const server = http.createServer(app);
-
-// Chat feature
-const connectedSockets = []
-const wss = new WebSocketServer({server});
-wss.on("connection", (socket) => {
-  socket.nickname = '익명'
-  connectedSockets.push(socket);
-  console.log('Connected to Browser!')
-  socket.on("close", () => console.log("Disconnected to Browser!"))
-  socket.on("message", (msg) => {
-    const message = JSON.parse(msg)
-    if (message.type == 'nickname') {
-      socket.nickname = message.payload
-      return;
-    }
-    if (message.type == 'message') {
-      connectedSockets.forEach(aSocket => {
-        aSocket.send(`${socket.nickname}:: ${message.payload}`)
-      })
-      return;
-    }
+const httpServer = http.createServer(app);
+const wsServer = new Server(httpServer);
+wsServer.on("connection", socket => {
+  socket.on('create-room', (roomName, callback) => {
+    console.log(`create ${roomName} room!`)
+    callback(roomName)
   })
 })
 
-// Run app
-server.listen(3000, () => console.log('Start run server'))
+// Run app 
+httpServer.listen(3000, () => console.log('Start run httpServer'))

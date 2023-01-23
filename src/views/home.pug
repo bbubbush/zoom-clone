@@ -10,11 +10,10 @@ html(lang="en")
     header 
       h1 Zoom
     main
-      form#nick
-        input(type="text", placeholder="Write a nickname", requierd)
-        button Save
-      ul
-      form#chat
-        input(type="text", placeholder="Write a msg", requierd)
-        button Send
+      div#welcome
+       form#createRoom
+        input(type="text", placeholder="Write a room name") 
+        button Enter room 
+      
+    script(src="/socket.io/socket.io.js") 
     script(src="/public/js/app.js") 
