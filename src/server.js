@@ -17,10 +17,21 @@ app.get("/*", (req, res) => res.render("/"))
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 wsServer.on("connection", socket => {
-  socket.on('create-room', (roomName, callback) => {
-    console.log(`create ${roomName} room!`)
+  socket['nickname'] = '익명'
+  socket.on('create-room', (roomName, nickname, callback) => {
+    socket['nickname'] = nickname
+    socket.join(roomName);
     callback(roomName)
+    socket.to(roomName).emit('welcome', socket['nickname'])
   })
+  socket.on('disconnecting', () => {
+    socket.rooms.forEach(roomName => socket.to(roomName).emit('bye', socket['nickname']))
+  })
+  socket.on('new-message', (msg, roomName, callback) => {
+    socket.to(roomName).emit('new-message', `${socket['nickname']}: ${msg}`)
+    callback()
+  })
+  
 })
 
 // Run app 
